@@ -1,0 +1,1 @@
+# This folder is dedicated to storing trained models or model checkpoints. It can be further organized into subfolders based on different experiments, versions, or architectures.
