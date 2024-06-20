@@ -1,23 +1,15 @@
 # Diabetes Prediction
-This project have no intention of being productive.
-I made this repository only to exercise some concepts about:
-- Building Machine Learning models
-- Local deployment of Machine Learning models
-- Cloud deployment of MAchine Learning models (AWS)
 
-The database used on this project can be found on [Diabetes Health Indicator](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/data).
-
-
-#### -- Project Status: [Active, On-Hold, Completed]
+#### -- Project Status: [Active]
 
 ## Project Intro/Objective
-The purpose of this project is ________. (Describe the main goals of the project and potential civic impact. Limit to a short paragraph, 3-6 Sentences)
+The purpose of this project is to develop a machine learning project since the model development until the deployment on cloud, so in other words: This project has no intention to be productive.
+Just to contextualize, the goal is to check if a survey can provide accurate predictions about the probability of an individual have diabetes only using it questions.
 
-### Partner
-* [Name of Partner organization/Government department etc..]
-* Website for partner
-* Partner contact: [Name of Contact], [slack handle of contact if any]
-* If you do not have a partner leave this section out
+### Useful links
+* The dataset used on this project can be found on [Diabetes Health Indicator](https://www.kaggle.com/datasets/alexteboul/diabetes-health-indicators-dataset/data), I strongly recommend you to visit there to get more context about the business problem.
+
+* I got more business context watching videos of the Michigan Medicine channel on youtube that can be found [here](https://www.youtube.com/watch?v=Q6rLXPJ6j_I&list=PLNxqP-XbH8BIxZM9bknrNDe3eep5v4zSN).
 
 ### Methods Used
 * Inferential Statistics
@@ -27,59 +19,6 @@ The purpose of this project is ________. (Describe the main goals of the project
 * etc.
 
 ### Technologies
-* R 
 * Python
-* D3
-* PostGres, MySql
-* Pandas, jupyter
-* HTML
-* JavaScript
+* Pandas
 * etc. 
-
-## Project Description
-(Provide more detailed overview of the project.  Talk a bit about your data sources and what questions and hypothesis you are exploring. What specific data analysis/visualization and modelling work are you using to solve the problem? What blockers and challenges are you facing?  Feel free to number or bullet point things here)
-
-## Needs of this project
-
-- frontend developers
-- data exploration/descriptive statistics
-- data processing/cleaning
-- statistical modeling
-- writeup/reporting
-- etc. (be as specific as possible)
-
-## Getting Started
-
-1. Clone this repo (for help see this [tutorial](https://help.github.com/articles/cloning-a-repository/)).
-2. Raw Data is being kept [here](Repo folder containing raw data) within this repo.
-
-    *If using offline data mention that and how they may obtain the data from the froup)*
-    
-3. Data processing/transformation scripts are being kept [here](Repo folder containing data processing scripts/notebooks)
-4. etc...
-
-*If your project is well underway and setup is fairly complicated (ie. requires installation of many packages) create another "setup.md" file and link to it here*  
-
-5. Follow setup [instructions](Link to file)
-
-## Featured Notebooks/Analysis/Deliverables
-* [Notebook/Markdown/Slide Deck Title](link)
-* [Notebook/Markdown/Slide DeckTitle](link)
-* [Blog Post](link)
-
-
-## Contributing DSWG Members
-
-**Team Leads (Contacts) : [Full Name](https://github.com/[github handle])(@slackHandle)**
-
-#### Other Members:
-
-|Name     |  Slack Handle   | 
-|---------|-----------------|
-|[Full Name](https://github.com/[github handle])| @johnDoe        |
-|[Full Name](https://github.com/[github handle]) |     @janeDoe    |
-
-## Contact
-* If you haven't joined the SF Brigade Slack, [you can do that here](http://c4sf.me/slack).  
-* Our slack channel is `#datasci-projectname`
-* Feel free to contact team leads with any questions or if you are interested in contributing!
