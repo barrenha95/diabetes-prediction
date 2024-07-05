@@ -26,6 +26,21 @@ class ExploratoryAnalysis:
         self.dataframe = dataframe.drop(str(target), axis='columns')
         self.target = dataframe[str(target)]
 
+        # Getting columns name
+        self.columns = list(self.dataframe.columns)
+
+    def counting_categories(self, column):
+        
+        # Getting values of the expected column
+        values = self.dataframe[str(column)]
+
+        # Counting by each category
+        count = values.value_counts()
+
+        return(count)
+
+
+
 
 """Debug generating an generic small dataframe to check if the functions works properly"""
 if __name__ == '__main__':
@@ -34,6 +49,10 @@ if __name__ == '__main__':
     analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes')
     print(analysis.dataframe)
     print(analysis.target)
+    print(analysis.columns)
+
+    for i in analysis.columns:
+        print(analysis.counting_categories(i))
 
 
 
