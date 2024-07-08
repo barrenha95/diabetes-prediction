@@ -23,9 +23,12 @@ class ExploratoryAnalysis:
     # Getting input from user
     def __init__(self, dataframe, target, ignore):
 
+        self.target = str(target) # Save the name of the target column
+        
         # Splitting dataframe from target and removing columns to ignore
-        self.target = dataframe[str(target)] # Target column
         self.dataframe = dataframe.drop(ignore, axis='columns') # List of columns to ignore
+        self.target_df = copy(self.dataframe) # Target column
+        
         self.dataframe = self.dataframe.drop(str(target), axis='columns') # Dataframe with the remaining columns
 
         # Getting columns name
@@ -41,6 +44,23 @@ class ExploratoryAnalysis:
 
         return(count)
     
+    ### JOHN OF FUTURE: START DEBUGGING HERE
+    def sum_by_column(self, column, **kwargs):
+        
+        sum_column = kwargs.get('target_column', None) #Created to receive other columns to make operations
+
+        #Create the dataframe with the desired column and target
+        if sum_column:
+            df_target_and_column = self.dataframe[str(column), sum_column] 
+        else:
+            df_target_and_column = self.dataframe[str(column), self.target]
+        
+        df_target_and_column = df_target_and_column.groupby([str(column)]).sum()
+
+        return df_target_and_column
+    ### JOHN OF FUTURE: START DEBUGGING HERE
+
+        
     def exploratory_table(self):
         
         final_table = None #Declaring final table that will contain the resultes of the exploratory analysis
@@ -58,6 +78,9 @@ class ExploratoryAnalysis:
 
             if final_table is not None:
                 final_table = pd.concat([final_table, temp], axis = 0)
+
+        # for i in self.target.columns:
+        #     temp = self.target[]
 
         return final_table
 
@@ -79,7 +102,11 @@ if __name__ == '__main__':
     final_table = analysis.exploratory_table()
     print(final_table)
 
+### JOHN OF FUTURE: START DEBUGGING HERE
 
+    sum = analysis.sum_by_column('Activity')
+    print(sum)
+### JOHN OF FUTURE: START DEBUGGING HERE
 
 
 # Table
