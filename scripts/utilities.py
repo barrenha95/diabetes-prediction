@@ -48,6 +48,7 @@ class ExploratoryAnalysis:
         count = count.drop(columns=column) #Remove the old index (it were the category name)
         count = count.iloc[:, [1,2,0]] #Order the columns
 
+        count = count.rename(columns = {'count':'Count'})
 
         return(count)
     
@@ -75,14 +76,20 @@ class ExploratoryAnalysis:
         final_table = None #Declaring final table that will contain the results of the exploratory analysis
 
         for i in self.dataframe.columns:
-            temp = analysis.counting_categories(i) #Counting table for each category
+            temp_count = analysis.counting_categories(i) #Counting table for each category
+            temp_sum = analysis.sum_by_column(i) #Sum the target column for each category
+
+            temp_table = pd.merge(temp_count, temp_sum, how = 'inner', on=["Column","Category"])
             
+            # Logict to bind the result of each column
             if final_table is None:
-                final_table = copy(temp)
+                final_table = copy(temp_table)
 
             if final_table is not None:
-                final_table = pd.concat([final_table, temp], axis = 0)
+                final_table = pd.concat([final_table, temp_table], axis = 0)
 
+        final_table['NonEvents'] = final_table.apply(lambda row: row.Count - row.Events, axis = 1) #Counting non events
+    
 
         return final_table
 
@@ -103,10 +110,3 @@ if __name__ == '__main__':
 
     final_table = analysis.exploratory_table()
     print(final_table)
-
-    sum = analysis.sum_by_column('Sex')
-    print(sum)
-
-
-# Table
-## Column | Category | Count | Events | Non-events
