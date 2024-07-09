@@ -82,8 +82,18 @@ class ExploratoryAnalysis:
 
             temp_table = pd.merge(temp_count, temp_sum, how = 'inner', on=["Column","Category"])
 
+            # Calculating good and bad ratio
             temp_table['GoodRatio'] = temp_table.apply(lambda row: row[good_column] / row[total_column], axis = 1)
             temp_table['BadRatio']  = temp_table.apply(lambda row: (row[total_column] - row[good_column]) / row[total_column], axis = 1)
+            
+            # Replacing 0 to not have error when the ratios are 0
+            temp_table.loc[temp_table["GoodRatio"] == 0, "GoodRatio"] = 0.001
+            temp_table.loc[temp_table["BadRatio"] == 0, "BadRatio"] = 0.001
+            
+            temp_table['Woe'] = temp_table.apply(lambda row: np.log(row['GoodRatio']/row['BadRatio']), axis = 1)
+            temp_table['Iv'] = temp_table.apply(lambda row: (row['GoodRatio']-row['BadRatio'])*row['Woe'], axis = 1)
+
+            temp_table['ColumnIv'] = temp_table['Iv'].sum() # Total IV of the column
 
             # Logict to bind the result of each column
             if final_table is None:
@@ -100,15 +110,12 @@ class ExploratoryAnalysis:
         
         final_table['DfExposure'] = total_event/total_observations  #Exposure of the dataframe = events / observations
         final_table['ExposureRatio'] = final_table.apply(lambda row: row.Exposure / row.DfExposure, axis = 1)  #ExposureRatio = Exposure / DfExposure
-    
 
+        final_table = final_table.iloc[:, [0,1,2,3,9,10,11,12,4,5,6,7,8]] #Order the columns
+    
         return final_table
 
             
-
-
-
-
 
 """Debug generating an generic small dataframe to check if the functions works properly"""
 if __name__ == '__main__':
