@@ -1,5 +1,6 @@
 # General-purpose utility scripts or helper functions.
 
+import numpy as np
 import pandas as pd
 from copy import copy
 
@@ -89,6 +90,13 @@ class ExploratoryAnalysis:
                 final_table = pd.concat([final_table, temp_table], axis = 0)
 
         final_table['NonEvents'] = final_table.apply(lambda row: row.Count - row.Events, axis = 1) #Counting non events
+        final_table['Exposure'] = final_table.apply(lambda row: row.Events / row.Count, axis = 1)  #Exposure = Events / Total
+
+        total_observations = final_table['Count'].sum()
+        total_event = final_table['Events'].sum()
+        
+        final_table['DfExposure'] = total_event/total_observations  #Exposure of the dataframe = events / observations
+        final_table['ExposureRatio'] = final_table.apply(lambda row: row.Exposure / row.DfExposure, axis = 1)  #ExposureRatio = Exposure / DfExposure
     
 
         return final_table
