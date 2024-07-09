@@ -63,7 +63,7 @@ class ExploratoryAnalysis:
         df_target_and_column = self.target_df[[str(column), str(sum_column)]] 
         
         df_target_and_column = df_target_and_column.groupby([str(column)],as_index = False).sum()
-        df_target_and_column = df_target_and_column.rename(columns = {str(sum_column):'Events',
+        df_target_and_column = df_target_and_column.rename(columns = {str(sum_column):'Event',
                                                                       str(column): 'Category'})
 
         df_target_and_column['Column'] = column
@@ -72,7 +72,7 @@ class ExploratoryAnalysis:
         return df_target_and_column
 
         
-    def exploratory_table(self):
+    def exploratory_table(self, total_column = 'Count', good_column = 'Event'):
         
         final_table = None #Declaring final table that will contain the results of the exploratory analysis
 
@@ -81,7 +81,10 @@ class ExploratoryAnalysis:
             temp_sum = analysis.sum_by_column(i) #Sum the target column for each category
 
             temp_table = pd.merge(temp_count, temp_sum, how = 'inner', on=["Column","Category"])
-            
+
+            temp_table['GoodRatio'] = temp_table.apply(lambda row: row[good_column] / row[total_column], axis = 1)
+            temp_table['BadRatio']  = temp_table.apply(lambda row: (row[total_column] - row[good_column]) / row[total_column], axis = 1)
+
             # Logict to bind the result of each column
             if final_table is None:
                 final_table = copy(temp_table)
@@ -89,11 +92,11 @@ class ExploratoryAnalysis:
             if final_table is not None:
                 final_table = pd.concat([final_table, temp_table], axis = 0)
 
-        final_table['NonEvents'] = final_table.apply(lambda row: row.Count - row.Events, axis = 1) #Counting non events
-        final_table['Exposure'] = final_table.apply(lambda row: row.Events / row.Count, axis = 1)  #Exposure = Events / Total
+        final_table['NonEvent'] = final_table.apply(lambda row: row.Count - row.Event, axis = 1) #Counting non events
+        final_table['Exposure'] = final_table.apply(lambda row: row.Event / row.Count, axis = 1)  #Exposure = Events / Total
 
         total_observations = final_table['Count'].sum()
-        total_event = final_table['Events'].sum()
+        total_event = final_table['Event'].sum()
         
         final_table['DfExposure'] = total_event/total_observations  #Exposure of the dataframe = events / observations
         final_table['ExposureRatio'] = final_table.apply(lambda row: row.Exposure / row.DfExposure, axis = 1)  #ExposureRatio = Exposure / DfExposure
