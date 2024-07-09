@@ -45,17 +45,21 @@ class ExploratoryAnalysis:
         return(count)
     
     ### JOHN OF FUTURE: START DEBUGGING HERE
-    def sum_by_column(self, column, **kwargs):
-        
-        sum_column = kwargs.get('target_column', None) #Created to receive other columns to make operations
+    def sum_by_column(self, column, sum_column = None):
 
-        #Create the dataframe with the desired column and target
-        if sum_column:
-            df_target_and_column = self.dataframe[str(column), sum_column] 
-        else:
-            df_target_and_column = self.dataframe[str(column), self.target]
+        # Check if the user input a column
+        if sum_column is None:
+            sum_column = self.target
         
-        df_target_and_column = df_target_and_column.groupby([str(column)]).sum()
+        # Create the dataframe with the desired column and target
+        df_target_and_column = self.target_df[[str(column), str(sum_column)]] 
+        
+        df_target_and_column = df_target_and_column.groupby([str(column)],as_index = False).sum()
+        df_target_and_column = df_target_and_column.rename(columns = {str(sum_column):'Events',
+                                                                      str(column): 'Category'})
+
+        df_target_and_column['Column'] = column
+        df_target_and_column = df_target_and_column.iloc[:, [2,0,1]] #Order the columns
 
         return df_target_and_column
     ### JOHN OF FUTURE: START DEBUGGING HERE
@@ -102,11 +106,8 @@ if __name__ == '__main__':
     final_table = analysis.exploratory_table()
     print(final_table)
 
-### JOHN OF FUTURE: START DEBUGGING HERE
-
-    sum = analysis.sum_by_column('Activity')
+    sum = analysis.sum_by_column('Sex')
     print(sum)
-### JOHN OF FUTURE: START DEBUGGING HERE
 
 
 # Table
