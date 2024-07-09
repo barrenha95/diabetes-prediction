@@ -40,11 +40,17 @@ class ExploratoryAnalysis:
         values = self.dataframe[str(column)]
 
         # Counting by each category
-        count = values.value_counts()
+        count = pd.DataFrame(values.value_counts())
+
+        count['Column'] = str(column) #Create a column with the column name that was counted
+        count['Category'] = count.index #Create a column with the category name that was counted
+        count = count.reset_index() 
+        count = count.drop(columns=column) #Remove the old index (it were the category name)
+        count = count.iloc[:, [1,2,0]] #Order the columns
+
 
         return(count)
     
-    ### JOHN OF FUTURE: START DEBUGGING HERE
     def sum_by_column(self, column, sum_column = None):
 
         # Check if the user input a column
@@ -62,20 +68,14 @@ class ExploratoryAnalysis:
         df_target_and_column = df_target_and_column.iloc[:, [2,0,1]] #Order the columns
 
         return df_target_and_column
-    ### JOHN OF FUTURE: START DEBUGGING HERE
 
         
     def exploratory_table(self):
         
-        final_table = None #Declaring final table that will contain the resultes of the exploratory analysis
+        final_table = None #Declaring final table that will contain the results of the exploratory analysis
 
         for i in self.dataframe.columns:
-            temp = pd.DataFrame(analysis.counting_categories(i)) #Counting table for each category
-            temp['Column'] = i #Create a column with the column name that was counted
-            temp['Category'] = temp.index #Create a column with the category name that was counted
-            temp = temp.reset_index() 
-            temp = temp.drop(columns=i) #Remove the old index (it were the category name)
-            temp = temp.iloc[:, [1,2,0]] #Order the columns
+            temp = analysis.counting_categories(i) #Counting table for each category
             
             if final_table is None:
                 final_table = copy(temp)
@@ -83,8 +83,6 @@ class ExploratoryAnalysis:
             if final_table is not None:
                 final_table = pd.concat([final_table, temp], axis = 0)
 
-        # for i in self.target.columns:
-        #     temp = self.target[]
 
         return final_table
 
