@@ -19,16 +19,28 @@ class ExploratoryAnalysis:
     - Total IV (Information Value)
     - The percentage rep those operations
 
+    Parameters:
+    dataframe (pd.dataframe): The dataframe you want to do the exploratory analysis.
+    target (str): The name of the target column.
+    ignore (list of str): The list of name of columns that you want to drop from the analysis.
+
     """
 
     # Getting input from user
-    def __init__(self, dataframe, target, ignore):
+    def __init__(self, dataframe, target, ignore = None):
 
         self.target = str(target) # Save the name of the target column
         
-        # Splitting dataframe from target and removing columns to ignore
-        self.dataframe = dataframe.drop(ignore, axis='columns') # List of columns to ignore
-        self.target_df = copy(self.dataframe) # Target column
+        # Removing columns to ignore
+        if ignore:
+            self.ignore = list(ignore)
+            self.dataframe = dataframe.drop(self.ignore, axis='columns') # List of columns to ignore
+        else:
+            self.ignore = list()
+            self.dataframe = dataframe.drop(self.ignore, axis='columns') # List of columns to ignore
+
+        # Splitting dataframe from target            
+        self.target_df = copy(pd.DataFrame(self.dataframe)) # Target column
         
         self.dataframe = self.dataframe.drop(str(target), axis='columns') # Dataframe with the remaining columns
 
@@ -124,7 +136,21 @@ if __name__ == '__main__':
            ,['robert', 'sedentary','m',56, 1]]
     
     df = pd.DataFrame(data, columns=['Name', 'Activity', 'Sex', 'Age', 'Diabetes'])
-    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name'])
 
+    # Testing basic combination of the function
+    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name'])
     final_table = analysis.exploratory_table()
+    print("Basic combination: \n")
+    print(final_table)
+
+    # Ignoring two columns
+    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name', 'Activity'])
+    final_table = analysis.exploratory_table()
+    print("Ignoring two columns: \n")
+    print(final_table)
+
+    # Using default value of "ignore" argument
+    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes')
+    final_table = analysis.exploratory_table()
+    print("Default argument of ignore: \n")
     print(final_table)
