@@ -89,8 +89,8 @@ class ExploratoryAnalysis:
         final_table = None #Declaring final table that will contain the results of the exploratory analysis
 
         for i in self.dataframe.columns:
-            temp_count = analysis.counting_categories(i) #Counting table for each category
-            temp_sum = analysis.sum_by_column(i) #Sum the target column for each category
+            temp_count = self.counting_categories(i) #Counting table for each category
+            temp_sum = self.sum_by_column(i) #Sum the target column for each category
 
             temp_table = pd.merge(temp_count, temp_sum, how = 'inner', on=["Column","Category"])
 
