@@ -30,7 +30,19 @@ class ExploratoryAnalysis:
     def __init__(self, dataframe, target, ignore = None):
 
         self.target = str(target) # Save the name of the target column
+
+        try:
+            dataframe[str(target)].astype(int)
+        except:
+            raise Exception("Target must contain only numbers")
+
+        if len(dataframe[dataframe[str(target)]> 1])!= 0:
+            raise Exception("Target must be between 0 and 1")
         
+        if len(dataframe[dataframe[str(target)]< 0])!= 0:
+            raise Exception("Target must be between 0 and 1")
+        
+
         # Removing columns to ignore
         if ignore:
             self.ignore = list(ignore)
@@ -174,3 +186,23 @@ if __name__ == '__main__':
     final_table = analysis.exploratory_table()
     print("Default argument of ignore: \n")
     print(final_table)
+
+    ## Testing the exceptions ##
+    # target > 1
+    #data = [['tom', 'athletic','f',18, 5]
+    #       ,['erika', 'sedentary','f',22, 0]
+    #       ,['robert', 'sedentary','m',56, 1]]
+
+    # target < 0
+    #data = [['tom', 'athletic','f',18, -5]
+    #       ,['erika', 'sedentary','f',22, 0]
+    #       ,['robert', 'sedentary','m',56, 1]]
+
+    ## target not int
+    #data = [['tom', 'athletic','f',18, 'im_looking_for_error']
+    #       ,['erika', 'sedentary','f',22, 0]
+    #       ,['robert', 'sedentary','m',56, 1]]
+    
+    df = pd.DataFrame(data, columns=['Name', 'Activity', 'Sex', 'Age', 'Diabetes'])
+    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name'])
+
