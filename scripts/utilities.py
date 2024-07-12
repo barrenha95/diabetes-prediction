@@ -47,8 +47,18 @@ class ExploratoryAnalysis:
         # Getting columns name
         self.columns = list(self.dataframe.columns)
 
+        self.total_observations = int(len(self.dataframe)) #count the number of lines in the dataframe
+        self.total_event = dataframe[str(target)].sum()
+        self.total_nonevent = self.total_observations - self.total_event 
+
     def counting_categories(self, column):
         
+        """
+        Self = pd.Dataframe used to call the class
+        Input = Column
+        Output = pd.DataFrame ['Column','Category','Count']
+        """
+
         # Getting values of the expected column
         values = self.dataframe[str(column)]
 
@@ -66,6 +76,12 @@ class ExploratoryAnalysis:
         return(count)
     
     def sum_by_column(self, column, sum_column = None):
+
+        """
+        Self = pd.Dataframe used to call the class
+        Input = Column, sum_column_name (usually the target column)
+        Output = pd.DataFrame ['Column','Category','Event'(usually the good)]
+        """
 
         # Check if the user input a column
         if sum_column is None:
@@ -85,7 +101,13 @@ class ExploratoryAnalysis:
 
         
     def exploratory_table(self, total_column = 'Count', good_column = 'Event'):
-        
+
+        """
+        Self = pd.Dataframe used to call the class
+        Input = Column, total_column_name (the column indicating the count by category), good_column_name (usually the target column)
+        Output = pd.DataFrame ['Column','Category', all the metrics described in the header of this class]
+        """
+
         final_table = None #Declaring final table that will contain the results of the exploratory analysis
 
         for i in self.dataframe.columns:
@@ -93,11 +115,12 @@ class ExploratoryAnalysis:
             temp_sum = self.sum_by_column(i) #Sum the target column for each category
 
             temp_table = pd.merge(temp_count, temp_sum, how = 'inner', on=["Column","Category"])
-
-            # Calculating good and bad ratio
-            temp_table['GoodRatio'] = temp_table.apply(lambda row: row[good_column] / row[total_column], axis = 1)
-            temp_table['BadRatio']  = temp_table.apply(lambda row: (row[total_column] - row[good_column]) / row[total_column], axis = 1)
             
+            # Calculating good and bad ratio
+            temp_table['GoodRatio'] = temp_table.apply(lambda row: row[good_column] / self.total_event, axis = 1)
+            temp_table['BadRatio']  = temp_table.apply(lambda row: (row[total_column] - row[good_column]) / self.total_nonevent, axis = 1)
+
+
             # Replacing 0 to not have error when the ratios are 0
             temp_table.loc[temp_table["GoodRatio"] == 0, "GoodRatio"] = 0.5
             temp_table.loc[temp_table["BadRatio"] == 0, "BadRatio"] = 0.5
@@ -117,10 +140,7 @@ class ExploratoryAnalysis:
         final_table['NonEvent'] = final_table.apply(lambda row: row.Count - row.Event, axis = 1) #Counting non events
         final_table['Exposure'] = final_table.apply(lambda row: row.Event / row.Count, axis = 1)  #Exposure = Events / Total
 
-        total_observations = final_table['Count'].sum()
-        total_event = final_table['Event'].sum()
-        
-        final_table['DfExposure'] = total_event/total_observations  #Exposure of the dataframe = events / observations
+        final_table['DfExposure'] = self.total_event/self.total_observations  #Exposure of the dataframe = events / observations
         final_table['ExposureRatio'] = final_table.apply(lambda row: row.Exposure / row.DfExposure, axis = 1)  #ExposureRatio = Exposure / DfExposure
 
         final_table = final_table.iloc[:, [0,1,2,3,9,10,11,12,4,5,6,7,8]] #Order the columns
