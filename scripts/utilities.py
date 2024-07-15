@@ -122,12 +122,12 @@ class ExploratoryAnalysis:
 
         final_table = None #Declaring final table that will contain the results of the exploratory analysis
 
-        for i in self.dataframe.columns:
+        for i in (self.dataframe.columns):
             temp_count = self.counting_categories(i) #Counting table for each category
             temp_sum = self.sum_by_column(i) #Sum the target column for each category
 
             temp_table = pd.merge(temp_count, temp_sum, how = 'inner', on=["Column","Category"])
-            
+
             # Calculating good and bad ratio
             temp_table['GoodRatio'] = temp_table.apply(lambda row: row[good_column] / self.total_event, axis = 1)
             temp_table['BadRatio']  = temp_table.apply(lambda row: (row[total_column] - row[good_column]) / self.total_nonevent, axis = 1)
@@ -143,11 +143,11 @@ class ExploratoryAnalysis:
             temp_table['ColumnIv'] = temp_table['Iv'].sum() # Total IV of the column
 
             # Logict to bind the result of each column
-            if final_table is None:
-                final_table = copy(temp_table)
-
             if final_table is not None:
                 final_table = pd.concat([final_table, temp_table], axis = 0)
+
+            if final_table is None:
+                final_table = temp_table#.copy()
 
         final_table['NonEvent'] = final_table.apply(lambda row: row.Count - row.Event, axis = 1) #Counting non events
         final_table['Exposure'] = final_table.apply(lambda row: row.Event / row.Count, axis = 1)  #Exposure = Events / Total
