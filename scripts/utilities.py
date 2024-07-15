@@ -203,6 +203,6 @@ if __name__ == '__main__':
     #       ,['erika', 'sedentary','f',22, 0]
     #       ,['robert', 'sedentary','m',56, 1]]
     
-    df = pd.DataFrame(data, columns=['Name', 'Activity', 'Sex', 'Age', 'Diabetes'])
-    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name'])
+    #df = pd.DataFrame(data, columns=['Name', 'Activity', 'Sex', 'Age', 'Diabetes'])
+    #analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name'])
 
