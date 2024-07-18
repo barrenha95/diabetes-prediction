@@ -19,24 +19,58 @@ class ExploratoryAnalysis:
     - Total IV (Information Value)
     - The percentage rep those operations
 
+    Parameters:
+    dataframe (pd.dataframe): The dataframe you want to do the exploratory analysis.
+    target (str): The name of the target column.
+    ignore (list of str): The list of name of columns that you want to drop from the analysis.
+
     """
 
     # Getting input from user
-    def __init__(self, dataframe, target, ignore):
+    def __init__(self, dataframe, target, ignore = None):
 
         self.target = str(target) # Save the name of the target column
+
+        try:
+            dataframe[str(target)].astype(int)
+        except:
+            raise Exception("Target must contain only numbers")
+
+        if len(dataframe[dataframe[str(target)]> 1])!= 0:
+            raise Exception("Target must be between 0 and 1")
         
-        # Splitting dataframe from target and removing columns to ignore
-        self.dataframe = dataframe.drop(ignore, axis='columns') # List of columns to ignore
-        self.target_df = copy(self.dataframe) # Target column
+        if len(dataframe[dataframe[str(target)]< 0])!= 0:
+            raise Exception("Target must be between 0 and 1")
+        
+
+        # Removing columns to ignore
+        if ignore:
+            self.ignore = list(ignore)
+            self.dataframe = dataframe.drop(self.ignore, axis='columns') # List of columns to ignore
+        else:
+            self.ignore = list()
+            self.dataframe = dataframe.drop(self.ignore, axis='columns') # List of columns to ignore
+
+        # Splitting dataframe from target            
+        self.target_df = copy(pd.DataFrame(self.dataframe)) # Target column
         
         self.dataframe = self.dataframe.drop(str(target), axis='columns') # Dataframe with the remaining columns
 
         # Getting columns name
         self.columns = list(self.dataframe.columns)
 
+        self.total_observations = int(len(self.dataframe)) #count the number of lines in the dataframe
+        self.total_event = dataframe[str(target)].sum()
+        self.total_nonevent = self.total_observations - self.total_event 
+
     def counting_categories(self, column):
         
+        """
+        Self = pd.Dataframe used to call the class
+        Input = Column
+        Output = pd.DataFrame ['Column','Category','Count']
+        """
+
         # Getting values of the expected column
         values = self.dataframe[str(column)]
 
@@ -54,6 +88,12 @@ class ExploratoryAnalysis:
         return(count)
     
     def sum_by_column(self, column, sum_column = None):
+
+        """
+        Self = pd.Dataframe used to call the class
+        Input = Column, sum_column_name (usually the target column)
+        Output = pd.DataFrame ['Column','Category','Event'(usually the good)]
+        """
 
         # Check if the user input a column
         if sum_column is None:
@@ -73,22 +113,29 @@ class ExploratoryAnalysis:
 
         
     def exploratory_table(self, total_column = 'Count', good_column = 'Event'):
-        
+
+        """
+        Self = pd.Dataframe used to call the class
+        Input = Column, total_column_name (the column indicating the count by category), good_column_name (usually the target column)
+        Output = pd.DataFrame ['Column','Category', all the metrics described in the header of this class]
+        """
+
         final_table = None #Declaring final table that will contain the results of the exploratory analysis
 
-        for i in self.dataframe.columns:
-            temp_count = analysis.counting_categories(i) #Counting table for each category
-            temp_sum = analysis.sum_by_column(i) #Sum the target column for each category
+        for i in (self.dataframe.columns):
+            temp_count = self.counting_categories(i) #Counting table for each category
+            temp_sum = self.sum_by_column(i) #Sum the target column for each category
 
             temp_table = pd.merge(temp_count, temp_sum, how = 'inner', on=["Column","Category"])
 
             # Calculating good and bad ratio
-            temp_table['GoodRatio'] = temp_table.apply(lambda row: row[good_column] / row[total_column], axis = 1)
-            temp_table['BadRatio']  = temp_table.apply(lambda row: (row[total_column] - row[good_column]) / row[total_column], axis = 1)
-            
+            temp_table['GoodRatio'] = temp_table.apply(lambda row: row[good_column] / self.total_event, axis = 1)
+            temp_table['BadRatio']  = temp_table.apply(lambda row: (row[total_column] - row[good_column]) / self.total_nonevent, axis = 1)
+
+
             # Replacing 0 to not have error when the ratios are 0
-            temp_table.loc[temp_table["GoodRatio"] == 0, "GoodRatio"] = 0.001
-            temp_table.loc[temp_table["BadRatio"] == 0, "BadRatio"] = 0.001
+            temp_table.loc[temp_table["GoodRatio"] == 0, "GoodRatio"] = 0.5
+            temp_table.loc[temp_table["BadRatio"] == 0, "BadRatio"] = 0.5
             
             temp_table['Woe'] = temp_table.apply(lambda row: np.log(row['GoodRatio']/row['BadRatio']), axis = 1)
             temp_table['Iv'] = temp_table.apply(lambda row: (row['GoodRatio']-row['BadRatio'])*row['Woe'], axis = 1)
@@ -96,19 +143,16 @@ class ExploratoryAnalysis:
             temp_table['ColumnIv'] = temp_table['Iv'].sum() # Total IV of the column
 
             # Logict to bind the result of each column
-            if final_table is None:
-                final_table = copy(temp_table)
-
             if final_table is not None:
                 final_table = pd.concat([final_table, temp_table], axis = 0)
+
+            if final_table is None:
+                final_table = temp_table#.copy()
 
         final_table['NonEvent'] = final_table.apply(lambda row: row.Count - row.Event, axis = 1) #Counting non events
         final_table['Exposure'] = final_table.apply(lambda row: row.Event / row.Count, axis = 1)  #Exposure = Events / Total
 
-        total_observations = final_table['Count'].sum()
-        total_event = final_table['Event'].sum()
-        
-        final_table['DfExposure'] = total_event/total_observations  #Exposure of the dataframe = events / observations
+        final_table['DfExposure'] = self.total_event/self.total_observations  #Exposure of the dataframe = events / observations
         final_table['ExposureRatio'] = final_table.apply(lambda row: row.Exposure / row.DfExposure, axis = 1)  #ExposureRatio = Exposure / DfExposure
 
         final_table = final_table.iloc[:, [0,1,2,3,9,10,11,12,4,5,6,7,8]] #Order the columns
@@ -124,7 +168,41 @@ if __name__ == '__main__':
            ,['robert', 'sedentary','m',56, 1]]
     
     df = pd.DataFrame(data, columns=['Name', 'Activity', 'Sex', 'Age', 'Diabetes'])
-    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name'])
 
+    # Testing basic combination of the function
+    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name'])
     final_table = analysis.exploratory_table()
+    print("Basic combination: \n")
     print(final_table)
+
+    # Ignoring two columns
+    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name', 'Activity'])
+    final_table = analysis.exploratory_table()
+    print("Ignoring two columns: \n")
+    print(final_table)
+
+    # Using default value of "ignore" argument
+    analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes')
+    final_table = analysis.exploratory_table()
+    print("Default argument of ignore: \n")
+    print(final_table)
+
+    ## Testing the exceptions ##
+    # target > 1
+    #data = [['tom', 'athletic','f',18, 5]
+    #       ,['erika', 'sedentary','f',22, 0]
+    #       ,['robert', 'sedentary','m',56, 1]]
+
+    # target < 0
+    #data = [['tom', 'athletic','f',18, -5]
+    #       ,['erika', 'sedentary','f',22, 0]
+    #       ,['robert', 'sedentary','m',56, 1]]
+
+    ## target not int
+    #data = [['tom', 'athletic','f',18, 'im_looking_for_error']
+    #       ,['erika', 'sedentary','f',22, 0]
+    #       ,['robert', 'sedentary','m',56, 1]]
+    
+    #df = pd.DataFrame(data, columns=['Name', 'Activity', 'Sex', 'Age', 'Diabetes'])
+    #analysis = ExploratoryAnalysis(dataframe = df, target = 'Diabetes', ignore=['Name'])
+
