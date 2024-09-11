@@ -1,5 +1,6 @@
 import json
 import pandas as pd
+import numpy as np
 
 class InferenceEngine:
     '''
@@ -30,22 +31,23 @@ class InferenceEngine:
         except:
             self.request = json.loads(request)
 
-        self.df = pd.json_normalize(self.request, max_level=0)
+        #self.df = pd.json_normalize(self.request, max_level=0)
 
     def bmi_categorization(self, name = "BMI"):
-        self.df['BMI'] = pd.cut(x=float(self.df['BMI']), bins=[0, 18.4
-                                       , 24.9
-                                       , 29.9
-                                       , 34.9
-                                       , 39.9,100], 
-                   labels=['Underweight'
-                          , 'Normal'
-                          , 'Overweight'
-                          , 'Obesity1'
-                          , 'Obesity2'
-                          , 'Obesity3']) 
+
+        bmi_tmp = self.request['BMI']
+
+        binInterval  = [0, 18.4, 24.9, 29.9, 34.9, 39.9, 100]
+        binLabels= ['Underweight', 'Normal', 'Overweight', 'Obesity1', 'Obesity2', 'Obesity3']
+
+        bmi_tmp = pd.cut(x=[float(bmi_tmp)], bins=binInterval, labels=binLabels) 
+
+        tmp = self.request
+        tmp['BMI'] = bmi_tmp
+
+        self.request_categorized = tmp
         
-        return self.df["BMI"]
+        return self.request_categorized
         
         
 
