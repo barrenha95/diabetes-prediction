@@ -32,10 +32,6 @@ class InferenceEngine:
         except:
             self.request = json.loads(request)
 
-
-        self.sc = joblib.load('./objects/std_scaler.bin')
-        self.lr = joblib.load('./objects/logistic_regressor.bin')
-
     def bmi_categorization(self, name = "BMI"):
 
         bmi_tmp = self.request[name]
@@ -54,14 +50,14 @@ class InferenceEngine:
     
     def standardization(self):
 
+        woe_encoder = joblib.load('./objects/woe_encoder.bin')
+        sc = joblib.load('./objects/std_scaler.bin')
+    
         tmp = pd.DataFrame.from_dict(self.request_categorized)
 
-        columns = [col for col in tmp]
-        woe_encoder = ce.WOEEncoder(cols=columns) # Create encoder
-        woe_encoded_train = woe_encoder.fit_transform(tmp[columns]).add_suffix('_woe') #Apply de encoder
-
+        #tmp2 = woe_encoder.transform(tmp)
         #self.X_train_std = self.sc.fit_transform(tmp)
-        return woe_encoded_train
+        return self.request_categorized
         
         
         
@@ -83,4 +79,5 @@ if __name__ == '__main__':
            }
 
     inference = InferenceEngine(request = rq1)
-    print(inference.bmi_categorization())
+    inference.bmi_categorization()
+    print(inference.standardization())
