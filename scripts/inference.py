@@ -1,6 +1,7 @@
 import json
 import pandas as pd
 import joblib
+import category_encoders as ce
 
 class InferenceEngine:
     '''
@@ -55,8 +56,12 @@ class InferenceEngine:
 
         tmp = pd.DataFrame.from_dict(self.request_categorized)
 
+        columns = [col for col in tmp]
+        woe_encoder = ce.WOEEncoder(cols=columns) # Create encoder
+        woe_encoded_train = woe_encoder.fit_transform(tmp[columns]).add_suffix('_woe') #Apply de encoder
+
         #self.X_train_std = self.sc.fit_transform(tmp)
-        #return self.X_train_std
+        return woe_encoded_train
         
         
         
